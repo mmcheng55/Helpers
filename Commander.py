@@ -61,7 +61,7 @@ class Commander(object):
 
     def register(
             self,
-            func: function,
+            func,
             name: str = None,
             names: list = None
         ):
@@ -94,6 +94,16 @@ class Commander(object):
                 f"{err}"
             ))
 
+    async def _run_(self, cmd: list, c: Command):
+
+        try:
+            return await c.func(*cmd[1:]) if len(cmd) != 1 else await c.func()
+        except Exception as err:
+            print(logging.warning(
+                f"Ignoring the following exception {err.__class__.__name__} in command {c.name}:\n"
+                f"{err}"
+            ))
+
     def run(
         self,
         cmd: str
@@ -108,6 +118,24 @@ class Commander(object):
             for c in self.command:
                 if cmd[0].replace(self.caller, "") in c.name:
                     self._run(cmd, c)
+
+        print(logging.warning(
+            f"Command {cmd[0].replace(self.caller, '')} not found.")) if self.ignore_command_not_found else None
+
+    async def run_async(
+        self,
+        cmd: str
+    ):
+        """
+        Split the command and call it with async.
+        :param cmd: Command to be run.
+        :return: None
+        """
+        if cmd.startswith(self.caller):
+            cmd = shlex.split(cmd)
+            for c in self.command:
+                if cmd[0].replace(self.caller, "") in c.name:
+                    return await self._run_(cmd, c)
 
         print(logging.warning(
             f"Command {cmd[0].replace(self.caller, '')} not found.")) if self.ignore_command_not_found else None
