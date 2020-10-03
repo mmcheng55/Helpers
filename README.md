@@ -14,3 +14,17 @@ def ping():
 
 command.run("!ping")
 ```
+
+> **TCP Echo Server**
+```python
+from helpers import TCPEcho
+
+client = TCPEcho()
+
+
+@client.Command()
+async def Ping():
+    return "Pong!"
+
+client.run()
+```
